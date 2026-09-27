@@ -1,0 +1,1398 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- EDIT: title + meta (search engines / LinkedIn card) -->
+<title>Abdur Rafay — AI Developer</title>
+<meta name="description" content="I build high-end websites by engineering AI and writing precision prompts. I prompt. Therefore I ship.">
+<meta property="og:title" content="Abdur Rafay — AI Developer">
+<meta property="og:description" content="I build high-end websites by engineering AI and writing precision prompts. I prompt. Therefore I ship.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0B0B0C">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='7' fill='%23FF4D00'/%3E%3C/svg%3E">
+
+<!-- Type: Clash Display (display) + General Sans (body) from Fontshare, JetBrains Mono from Google -->
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600&f[]=general-sans@400,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   ABDUR RAFAY — PORTFOLIO
+   One idea: a single particle field the visitor never leaves.
+   Palette: #0B0B0C / #F2EFE9 / #FF4D00. Hand-written CSS.
+   ============================================================ */
+
+:root{
+  --bg:     #0B0B0C;
+  --ink:    #F2EFE9;
+  --accent: #FF4D00;             /* the single accent — set from JS CONFIG too */
+  --dim:    rgba(242,239,233,.60);
+  --faint:  rgba(242,239,233,.34);
+  --hair:   rgba(242,239,233,.14);
+  --f-display: 'Clash Display', 'Syne', sans-serif;
+  --f-body:    'General Sans', sans-serif;
+  --f-mono:    'JetBrains Mono', ui-monospace, monospace;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+html{ background:var(--bg); scrollbar-width:none; -ms-overflow-style:none; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+::-webkit-scrollbar{ display:none; }
+::selection{ background:var(--accent); color:var(--bg); }
+
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:16px;
+  line-height:1.5;
+  min-height:100vh;
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;   /* touch: no gray flash on tap — no-op with a mouse */
+  overscroll-behavior-y:none;               /* touch: kill rubber-band/pull-to-refresh */
+  touch-action:manipulation;                /* touch: removes 300ms double-tap-zoom delay */
+}
+a{ color:inherit; text-decoration:none; }
+ul{ list-style:none; }
+:focus-visible{ outline:1px solid var(--accent); outline-offset:5px; }
+main{ flex:1; position:relative; z-index:2; }
+
+.mono{
+  font-family:var(--f-mono);
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  font-weight:400;
+}
+
+/* ---------- WebGL canvas (fixed, behind everything) ---------- */
+#gl{
+  position:fixed; inset:0; width:100%; height:100%;
+  z-index:1; pointer-events:none;
+  opacity:0; transition:opacity 1.4s ease .1s;
+}
+body.is-ready #gl{ opacity:1; }
+
+/* ---------- film grain + hairlines are the only texture ---------- */
+.grain{
+  position:fixed; inset:-10%;
+  z-index:240; pointer-events:none; opacity:.055;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grainShift 1.1s steps(8) infinite;
+}
+@keyframes grainShift{
+  0%{transform:translate(0,0)} 12.5%{transform:translate(-2%,-3%)}
+  25%{transform:translate(1%,-2%)} 37.5%{transform:translate(-3%,1%)}
+  50%{transform:translate(2%,2%)} 62.5%{transform:translate(-1%,3%)}
+  75%{transform:translate(3%,-1%)} 87.5%{transform:translate(-2%,2%)}
+  100%{transform:translate(0,0)}
+}
+
+/* ---------- nav ---------- */
+.nav{
+  position:fixed; top:0; left:0; right:0; z-index:120;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:22px 6vw;
+  padding-left:max(6vw, env(safe-area-inset-left, 0px));   /* notches in landscape (env=0 on desktop → identical) */
+  padding-right:max(6vw, env(safe-area-inset-right, 0px));
+}
+.nav-name{ font-family:var(--f-display); font-weight:500; font-size:16px; letter-spacing:.01em; }
+.nav-links{ display:flex; align-items:center; gap:clamp(18px,3vw,38px); }
+.nav-links a{ color:var(--dim); transition:color .3s; }
+@media (hover:hover) and (pointer:fine){ .nav-links a:hover{ color:var(--ink); } }   /* hover gated to real pointers — no sticky hover after tap */
+.nav-cta{
+  color:var(--accent);
+  border:1px solid rgba(255,77,0,.35);
+  padding:10px 18px;
+  transition:border-color .3s, background .3s, color .3s;
+}
+@media (hover:hover) and (pointer:fine){ .nav-cta:hover{ border-color:var(--accent); background:var(--accent); color:var(--bg); } }
+@media (max-width:640px){ .nav-links a:not(.nav-cta){ display:none; } }
+
+/* ---------- fixed corner UI: progress line + section label ---------- */
+.hud{ position:fixed; inset:0; z-index:110; pointer-events:none; }
+.hud-progress{ position:absolute; left:0; top:0; bottom:0; width:1px; background:var(--hair); }
+.hud-progress b{ display:block; position:absolute; inset:0; background:var(--accent); transform-origin:top; transform:scaleY(0); }
+.hud-label{ position:absolute; left:24px; bottom:20px; color:var(--dim); display:inline-block; }
+
+/* ---------- custom cursor ---------- */
+#cDot,#cRing{ position:fixed; top:0; left:0; width:0; height:0; z-index:400; pointer-events:none; opacity:0; }
+body.has-cursor #cDot, body.has-cursor #cRing{ display:block; }
+#cDot i{
+  position:absolute; display:block; width:5px; height:5px; border-radius:50%;
+  background:var(--accent); transform:translate(-50%,-50%);
+}
+#cDot.down i{ transform:translate(-50%,-50%) scale(.55); }
+#cRing{ will-change:transform; }
+#cRing i{
+  position:absolute; display:block; width:34px; height:34px; border-radius:50%;
+  border:1px solid rgba(242,239,233,.38); transform:translate(-50%,-50%);
+  transition:border-color .3s, background .3s;
+}
+#cRing.hot i{ border-color:var(--accent); }
+body.has-cursor *{ cursor:none; }
+
+/* ---------- sections: shared shell ---------- */
+.sec{
+  position:relative;
+  display:flex; flex-direction:column; justify-content:center;
+  padding:16vh 6vw 12vh;
+}
+.sec-tag{ color:var(--faint); display:block; margin-bottom:4vh; }
+
+/* masked line reveals (state applied by JS only, so no-JS stays visible) */
+.lm{ display:block; overflow:hidden; }
+.li{ display:block; will-change:transform; }
+.hero-name .ch{ display:inline-block; }  /* per-letter bounce targets — transform needs inline-block; rest state unchanged */
+.w{ display:inline-block; }
+
+.h2{
+  font-family:var(--f-display); font-weight:600;
+  font-size:clamp(38px,5.6vw,92px);
+  line-height:1.04; letter-spacing:-.02em;
+}
+.lead{ color:var(--dim); max-width:46ch; margin-top:3.5vh; font-size:17px; }
+
+/* ---------- 01 · hero ---------- */
+/* 130vh of scroll room for the camera dolly, but the content block itself
+   lives in the first viewport; the scroll cue is pinned to the screen.
+   Vertical centering: section = 130vh, padding-bottom 30vh → flex centers
+   the name+sub block at (0 + 130vh − 30vh)/2 = exactly 50vh of the first
+   viewport, at any screen height. `safe center` falls back to plain center. */
+.sec--hero{ min-height:130vh; min-height:130svh; justify-content:center; justify-content:safe center; padding:0 6vw 30vh; }
+.hero-label{ position:absolute; top:14vh; left:6vw; color:var(--dim); }
+.hero-name{
+  font-family:var(--f-display); font-weight:600;
+  font-size:clamp(58px,10.4vw,182px);
+  line-height:.92; letter-spacing:-.025em; text-transform:uppercase;
+}
+.hero-sub{
+  display:flex; justify-content:space-between; align-items:flex-end;
+  gap:5vw; margin-top:5vh; flex-wrap:wrap;
+}
+.hero-tag{
+  font-family:var(--f-display); font-weight:500;
+  font-size:clamp(20px,2.4vw,34px); letter-spacing:-.01em;
+}
+.hero-blurb{ color:var(--dim); max-width:34ch; font-size:16px; }
+.scroll-cue{
+  position:fixed; bottom:4.5vh; left:50%; transform:translateX(-50%); z-index:5;
+  display:flex; flex-direction:column; align-items:center; gap:12px; color:var(--faint);
+}
+.cue-line{ display:block; width:1px; height:44px; overflow:hidden; background:var(--hair); }
+.cue-line i{
+  display:block; width:1px; height:16px; background:var(--accent);
+  animation:cueDrop 1.9s cubic-bezier(.65,0,.35,1) infinite;
+}
+@keyframes cueDrop{ from{transform:translateY(-18px)} to{transform:translateY(46px)} }
+
+/* ---------- 02 · about ---------- */
+.sec--about{ min-height:140vh; min-height:140svh; }
+.about-body{
+  margin-top:5vh;
+  margin-left:clamp(0px,32vw,520px);   /* deliberate offset from the heading */
+  max-width:46ch; display:grid; gap:2.2vh;
+}
+.about-body p{ color:var(--dim); font-size:17px; }
+.about-nums{
+  margin-top:13vh; display:flex; flex-wrap:wrap;
+  gap:clamp(28px,6vw,96px);
+}
+.num{ border-top:1px solid var(--hair); padding-top:16px; min-width:140px; }
+.num b{
+  font-family:var(--f-mono); font-weight:500;
+  font-size:clamp(30px,3.8vw,54px); letter-spacing:-.04em; line-height:1;
+}
+.num b i{ font-style:normal; color:var(--accent); }
+.num span{ display:block; margin-top:8px; color:var(--faint); font-size:10px; letter-spacing:.16em; text-transform:uppercase; font-family:var(--f-mono); }
+
+/* ---------- 03 · skills (editorial list, no card grid) ---------- */
+.sec--skills{ min-height:140vh; min-height:140svh; }
+.skill-list{ margin-top:6vh; }
+.row-skill{
+  display:grid; grid-template-columns:84px 1fr;
+  gap:3vw; padding:28px 0; border-top:1px solid var(--hair);
+  align-items:baseline;
+}
+.row-skill:last-child{ border-bottom:1px solid var(--hair); }
+.row-skill .idx{ font-family:var(--f-mono); font-size:12px; color:var(--accent); letter-spacing:.18em; }
+.row-skill h3{
+  font-family:var(--f-display); font-weight:500;
+  font-size:clamp(22px,3vw,42px); line-height:1.05;
+  transition:transform .5s cubic-bezier(.22,1,.36,1);
+}
+.row-skill p{ color:var(--dim); font-size:15px; max-width:38ch; transition:color .3s; }
+@media (hover:hover) and (pointer:fine){
+  .row-skill:hover h3{ transform:translateX(16px); }
+  .row-skill:hover p{ color:var(--ink); }
+}
+@media (min-width:900px){
+  .row-skill{ grid-template-columns:84px 1fr minmax(30ch,42%); }
+  .row-skill p{ justify-self:end; text-align:right; }
+}
+
+/* ---------- 04 · work (full-width rows, big numerals) ---------- */
+.sec--work{ min-height:120vh; min-height:120svh; }
+.work-list{ margin-top:6vh; }
+.row-work{
+  display:grid; grid-template-columns:minmax(90px,12vw) 1fr;
+  gap:4vw; padding:48px 0 44px; border-top:1px solid var(--hair); align-items:start;
+}
+.row-work:last-child{ border-bottom:1px solid var(--hair); }
+.row-num{
+  font-family:var(--f-display); font-weight:600;
+  font-size:clamp(56px,8vw,128px); line-height:.8; color:var(--accent);
+  letter-spacing:-.03em;
+}
+.row-work h3{ font-family:var(--f-display); font-weight:500; font-size:clamp(26px,3.6vw,58px); line-height:.95; }
+.row-work p{ color:var(--dim); max-width:56ch; margin-top:14px; }
+.metric{
+  display:block; margin-top:20px; font-family:var(--f-mono);
+  font-size:11px; letter-spacing:.14em; color:var(--accent); text-transform:uppercase;
+}
+.tags{
+  display:block; margin-top:8px; font-family:var(--f-mono);
+  font-size:10px; letter-spacing:.12em; color:var(--faint); text-transform:uppercase;
+}
+
+/* ---------- 05 · contact ---------- */
+.sec--contact{ min-height:108vh; min-height:108svh; }
+.contact-h{
+  font-family:var(--f-display); font-weight:600;
+  font-size:clamp(64px,13vw,230px);
+  line-height:.9; letter-spacing:-.035em;
+}
+.contact-p{ color:var(--dim); max-width:40ch; margin-top:4vh; font-size:17px; }
+.cta{
+  display:inline-flex; align-self:flex-start; margin-top:6vh;
+  font-family:var(--f-mono); font-size:12px; letter-spacing:.2em; text-transform:uppercase;
+  padding:20px 44px; border:1px solid var(--accent); color:var(--ink);
+  transition:background .35s, color .35s;
+}
+@media (hover:hover) and (pointer:fine){ .cta:hover{ background:var(--accent); color:var(--bg); } }
+.contact-links{ margin-top:9vh; display:flex; flex-wrap:wrap; gap:clamp(24px,5vw,64px); }
+.contact-links a{
+  font-family:var(--f-mono); font-size:11px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--dim); transition:color .3s;
+}
+@media (hover:hover) and (pointer:fine){ .contact-links a:hover{ color:var(--accent); } }
+
+/* ---------- footer (sticks to bottom, respects safe area) ---------- */
+.footer{
+  display:flex; justify-content:space-between; align-items:center; gap:2vw; flex-wrap:wrap;
+  padding:26px 6vw calc(26px + env(safe-area-inset-bottom, 0px));
+  padding-left:max(6vw, env(safe-area-inset-left, 0px));    /* home-indicator / notch safe (env=0 on desktop → identical) */
+  padding-right:max(6vw, env(safe-area-inset-right, 0px));
+  border-top:1px solid var(--hair); color:var(--dim); font-size:13px;
+  position:relative; z-index:2;
+}
+.foot-note{ color:var(--faint); }
+
+/* ---------- preloader ---------- */
+.loader{
+  position:fixed; inset:0; z-index:300; background:var(--bg);
+  display:flex; align-items:center; justify-content:center;
+}
+.loader-top{ position:absolute; top:26px; left:6vw; color:var(--faint); }
+.loader-name{
+  font-family:var(--f-display); font-weight:600; text-transform:uppercase;
+  font-size:clamp(34px,6vw,84px); letter-spacing:-.02em; line-height:1;
+}
+.loader-count{
+  position:absolute; right:6vw; bottom:5vh;
+  font-family:var(--f-mono); font-weight:500;
+  font-size:clamp(40px,7vw,96px); letter-spacing:-.04em;
+}
+.loader-count i{ font-style:normal; color:var(--accent); font-size:.4em; vertical-align:baseline; }
+.loader-bar{
+  position:absolute; left:0; bottom:0; height:2px; width:100%;
+  background:var(--accent); transform:scaleX(0); transform-origin:left;
+}
+
+/* ---------- WebGL unavailable: intentional typographic fallback ---------- */
+body.no-webgl #gl{ display:none; }
+body.no-webgl .sec{ border-top:1px solid var(--hair); }
+body.no-webgl .sec--hero{ border-top:none; }
+
+/* ---------- mobile: work-row touch accordion (classes applied by JS on touch only — inert on desktop) ---------- */
+.row-work.row-touch{ position:relative; }
+.row-touch .row-more{ display:none; }
+.row-touch.open .row-more{ display:block; }
+.row-chev{
+  position:absolute; top:33px; right:0; width:22px; height:22px; color:var(--dim);
+  transition:transform .35s cubic-bezier(.22,1,.36,1), color .3s;
+}
+.row-chev svg{ width:100%; height:100%; display:block; }
+.row-touch.open .row-chev{ transform:rotate(180deg); color:var(--accent); }
+
+/* ---------- mobile: menu overlay (nav button only rendered ≤640px; overlay never opens elsewhere) ---------- */
+.nav-menu{
+  display:none; align-items:center; justify-content:center; min-height:44px; min-width:64px;
+  color:var(--dim); background:none; border:1px solid var(--hair); cursor:pointer;
+  transition:color .3s, border-color .3s;
+}
+.menu-overlay{
+  position:fixed; inset:0; z-index:119; background:var(--bg);   /* below nav (120) so Menu/Close stays tappable, above hud (110) */
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; visibility:hidden; transition:opacity .3s ease, visibility .3s ease;
+}
+.menu-overlay.open{ opacity:1; visibility:visible; }
+.menu-links{ display:flex; flex-direction:column; gap:clamp(18px,4vh,34px); text-align:center; }
+.menu-links a{
+  font-family:var(--f-display); font-weight:500; font-size:clamp(34px,9vw,56px);
+  color:var(--ink); letter-spacing:-.01em; padding:12px 24px;
+}
+
+/* ---------- mobile: tap feedback uses :active (touch only) ---------- */
+@media (hover:none){
+  .nav-links a:active{ color:var(--ink); }
+  .nav-cta:active{ border-color:var(--accent); background:var(--accent); color:var(--bg); }
+  .cta:active{ background:var(--accent); color:var(--bg); }
+  .contact-links a:active{ color:var(--accent); }
+  .menu-links a:active{ color:var(--accent); }
+}
+
+/* ---------- mobile: film grain static + dimmed (GPU battery) ---------- */
+@media (max-width:768px), (hover:none) and (pointer:coarse){
+  .grain{ animation:none; opacity:.028; }
+}
+
+/* ---------- mobile: short landscape phones — cue/label would collide with content ---------- */
+@media (max-height:560px) and (hover:none){
+  .scroll-cue{ display:none; }
+  .hud-label{ display:none; }
+}
+
+/* ---------- mobile ---------- */
+@media (max-width:760px){
+  .sec{ padding:14vh 7vw 10vh; }
+  .sec--hero{ padding:0 7vw 30vh; }   /* keep the 50vh centering trick, mobile gutters */
+  .about-body{ margin-left:0; }
+  .hero-sub{ flex-direction:column; align-items:flex-start; gap:3vh; }
+  .hero-blurb{ max-width:30ch; }
+  .row-work{ grid-template-columns:auto 1fr; gap:14px; align-items:baseline; padding:32px 0 28px; }
+  .row-num{ font-size:clamp(20px,6vw,30px); line-height:1; }
+  .row-skill{ grid-template-columns:56px 1fr; gap:16px; }
+  .hud-label{ left:16px; bottom:14px; }
+}
+@media (max-width:640px){
+  .nav-menu{ display:inline-flex; }
+  .hero-name{ font-size:clamp(72px,21.5vw,104px); }        /* fills the column, never wraps mid-word */
+  .h2{ font-size:clamp(40px,10.8vw,48px); }                /* display type never drops under 2.5rem */
+  .num b{ font-size:clamp(40px,11vw,48px); }
+  .row-skill{ grid-template-columns:1fr; gap:6px; padding:22px 0; }
+  .row-skill p{ font-size:16px; }                          /* body type never drops under 1rem */
+  .footer{ flex-direction:column; align-items:center; text-align:center; gap:8px; }
+  .hud-label{ display:none; }                              /* corner tag collides with thumbs/footer on phones */
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion:reduce){
+  .grain{ animation:none; }
+  .cue-line i{ animation:none; }
+  .li{ transform:none !important; }
+}
+</style>
+<noscript><style>#loader{display:none}</style></noscript>
+</head>
+<body>
+
+<!-- preloader: name + counter, wipes up into the hero -->
+<div class="loader" id="loader" aria-hidden="true">
+  <span class="loader-top mono">Portfolio — 2026</span>
+  <span class="loader-name" id="loaderName">Abdur Rafay</span>
+  <span class="loader-count"><span id="loaderNum">000</span><i>%</i></span>
+  <span class="loader-bar" id="loaderBar"></span>
+</div>
+
+<!-- the one continuous 3D scene -->
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="nav">
+  <a class="nav-name" id="navName" href="#hero" data-scroll>Abdur Rafay</a>
+  <nav class="nav-links" aria-label="Primary">
+    <a class="mono" href="#about" data-scroll>About</a>
+    <a class="mono" href="#work" data-scroll>Work</a>
+    <a class="mono" href="#contact" data-scroll>Contact</a>
+    <a class="nav-cta mono" id="navCta" href="#contact" data-scroll data-magnetic="0.3">Hire me</a>
+  </nav>
+  <button class="nav-menu mono" id="menuBtn" type="button" aria-expanded="false" aria-controls="menuOverlay">Menu</button>
+</header>
+
+<!-- mobile menu overlay (opens only on touch phones ≤640px via #menuBtn; never rendered elsewhere) -->
+<div class="menu-overlay" id="menuOverlay">
+  <nav class="menu-links" aria-label="Menu">
+    <a class="mono" href="#about" data-scroll>About</a>
+    <a class="mono" href="#work" data-scroll>Work</a>
+    <a class="mono" href="#contact" data-scroll>Contact</a>
+  </nav>
+</div>
+
+<!-- fixed corner UI -->
+<div class="hud" aria-hidden="true">
+  <div class="hud-progress"><b id="hudFill"></b></div>
+  <span class="hud-label mono" id="hudLabel">01 — Intro</span>
+</div>
+
+<!-- custom cursor -->
+<div id="cDot" aria-hidden="true"><i></i></div>
+<div id="cRing" aria-hidden="true"><i></i></div>
+
+
+<main id="main">
+
+  <!-- ============ 01 · HERO — breathing nebula ============ -->
+  <section class="sec sec--hero" id="hero" data-label="01 — Intro">
+    <span class="hero-label mono" data-fade>AI Developer · Portfolio 2026</span>
+    <!-- EDIT: your name (first/last split into lines) -->
+    <h1 class="hero-name" id="heroName" aria-label="Abdur Rafay">
+      <span class="lm"><span class="li">ABDUR</span></span>
+      <span class="lm"><span class="li">RAFAY</span></span>
+    </h1>
+    <div class="hero-sub">
+      <p class="hero-tag" id="heroTag" data-fade>I prompt. Therefore I ship.</p>
+      <p class="hero-blurb" data-fade>I build websites and AI products by engineering AI — studio-grade craft at machine-grade speed. The prompt is my stack.</p>
+    </div>
+    <div class="scroll-cue" data-fade aria-hidden="true">
+      <span class="mono">Scroll</span>
+      <span class="cue-line"><i></i></span>
+    </div>
+  </section>
+
+  <!-- ============ 02 · ABOUT — synaptic graph ============ -->
+  <section class="sec sec--about" id="about" data-label="02 — About">
+    <span class="sec-tag mono" data-fade>02 — About</span>
+    <h2 class="h2" data-split>Boilerplate is a choice. I declined.</h2>
+    <div class="about-body">
+      <p data-split>Most sites are typed line by line. Mine are engineered: I design the prompt system, the machine produces the volume, and I refine what it can't feel — type, motion, restraint.</p>
+      <p data-split>It's not automation for its own sake. It's arithmetic. One precise instruction replaces a thousand lines of boilerplate.</p>
+    </div>
+    <!-- EDIT: your three numbers -->
+    <div class="about-nums">
+      <div class="num" data-fade><b><span data-count="3" data-pad="2">03</span></b><span>Projects shipped</span></div>
+      <div class="num" data-fade><b><span data-count="0">0</span></b><span>Cloud calls — everything runs local</span></div>
+      <div class="num" data-fade><b><span data-count="3">3</span></b><span>AI models chained in voxa</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 03 · SKILLS — orbital rings ============ -->
+  <section class="sec sec--skills" id="skills" data-label="03 — Skills">
+    <span class="sec-tag mono" data-fade>03 — Skills</span>
+    <h2 class="h2" data-split>How I work.</h2>
+    <p class="lead" data-split>Each discipline maps to a cluster in the particle field. Hover one and watch it answer.</p>
+    <!-- EDIT: skills (data-cluster 0–5 pulses the matching particles) -->
+    <ul class="skill-list">
+      <li class="row row-skill" data-cluster="0">
+        <span class="idx">01</span>
+        <h3>Prompt Engineering</h3>
+        <p>Instructions engineered like code — constraints, examples, evaluation loops.</p>
+      </li>
+      <li class="row row-skill" data-cluster="1">
+        <span class="idx">02</span>
+        <h3>LLM Integration</h3>
+        <p>Streaming, function calling, retrieval, guardrails — wired into real stacks.</p>
+      </li>
+      <li class="row row-skill" data-cluster="2">
+        <span class="idx">03</span>
+        <h3>Generative UI</h3>
+        <p>Interfaces assembled from structured output, then edited by hand.</p>
+      </li>
+      <li class="row row-skill" data-cluster="3">
+        <span class="idx">04</span>
+        <h3>AI-Assisted WebGL</h3>
+        <p>Three.js scenes built conversationally, tuned frame by frame.</p>
+      </li>
+      <li class="row row-skill" data-cluster="4">
+        <span class="idx">05</span>
+        <h3>Rapid Prototyping</h3>
+        <p>Idea to URL in 72 hours. Testing beats guessing.</p>
+      </li>
+      <li class="row row-skill" data-cluster="5">
+        <span class="idx">06</span>
+        <h3>Front-End Craft</h3>
+        <p>Typography, motion, performance. The parts machines can't fake.</p>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ 04 · WORK — wireframe terrain ============ -->
+  <section class="sec sec--work" id="work" data-label="04 — Work">
+    <span class="sec-tag mono" data-fade>04 — Work</span>
+    <h2 class="h2" data-split>Selected work.</h2>
+    <p class="lead" data-split>2025 · Three live builds</p>
+    <!-- EDIT: projects -->
+    <div class="work-list">
+      <article class="row row-work">
+        <span class="row-num">01</span>
+        <div>
+          <h3>voxa</h3>
+          <p>Voice-to-voice AI that runs entirely on your machine — you speak, it thinks, it answers out loud. No cloud, no API keys, nothing leaves your computer.</p>
+          <span class="metric">0 API keys · 0 cloud calls</span>
+          <span class="metric">whisper.cpp · Qwen3-4B · Kokoro</span>
+          <p>Mic → whisper.cpp (STT) → Qwen3-4B (LLM) → Kokoro (TTS) → speaker. Three open-source models chained into one conversation, fully offline, with session memory. The models are the easy part — the hard part is the seams: streaming between stages, clean turn-taking, shaving latency until it feels like talking, not dictation. Every stage is modular — point the brain at Ollama, LM Studio or any OpenAI-compatible API and nothing else moves. One command installs the rest; you bring your own LLM.</p>
+          <span class="tags">whisper.cpp · Qwen3-4B · Kokoro · Python</span>
+        </div>
+      </article>
+      <article class="row row-work">
+        <span class="row-num">02</span>
+        <div>
+          <h3>Desk-Engine</h3>
+          <p>Live GIF wallpapers for Windows in Electron — audited and tuned until the RAM stopped creeping.</p>
+          <span class="metric">~100 MB steady while animating</span>
+          <span class="metric">Electron · Performance engineering</span>
+          <p>Electron has a reputation: a hundred-plus megabytes before you've drawn a pixel. I shipped with it anyway — then audited every process, timer, cache and compositing path so nothing spends RAM by default. GIFs play live behind your desktop icons, click-through and always-on-top, at ~100 MB steady. The lesson wasn't 'Electron is light.' It was: measure everything, and never let a framework spend your user's RAM unattended.</p>
+          <span class="tags">Electron · Chromium tuning · Windows shell</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ 05 · CONTACT — portal ============ -->
+  <section class="sec sec--contact" id="contact" data-label="">
+    <span class="sec-tag mono" data-fade>05 — Contact</span>
+    <h2 class="contact-h"><span class="lm"><span class="li">Let's build.</span></span></h2>
+    <p class="contact-p" data-split>One email. One paragraph about the project. I reply within 24 hours.</p>
+    <a class="cta" id="cta" href="mailto:abdrafay002@outlook.com" data-magnetic="0.25" data-fade>Start a project</a>
+    <!-- EDIT: your links -->
+    <div class="contact-links" data-fade>
+      <a id="linkGithub" href="https://github.com/RAF-02" target="_blank" rel="noopener" data-magnetic="0.25">GitHub ↗</a>
+      <a id="linkLinkedin" href="https://www.linkedin.com/in/abdur-rafay-516b79433" target="_blank" rel="noopener" data-magnetic="0.25">LinkedIn ↗</a>
+      <a id="linkEmail" href="mailto:abdrafay002@outlook.com" data-magnetic="0.25">abdrafay002@outlook.com</a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <span class="mono">© <span id="year">2025</span> Abdur Rafay</span>
+  <span class="foot-note">Built by prompt. Finished by hand.</span>
+</footer>
+
+<!--
+  Libraries — pinned UMD builds that run on double-click (file://), no build step:
+    three.js r128 (last UMD), GSAP 3.12.5 + ScrollTrigger, Lenis 1.1.14
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   EDIT ZONE — swap identity, links, accent, tagline here.
+   Deeper copy edits are marked with "EDIT:" in the HTML above.
+   ============================================================ */
+var CONFIG = {
+  name:     'Abdur Rafay',                  // split into hero lines on whitespace
+  tagline:  'I prompt. Therefore I ship.',  // hero positioning line
+  email:    'abdrafay002@outlook.com',
+  github:   'https://github.com/RAF-02',
+  linkedin: 'https://www.linkedin.com/in/abdur-rafay-516b79433',
+  accent:   '#FF4D00',                      // the single accent color
+  ink:      '#F2EFE9',
+  bg:       '#0B0B0C'
+};
+
+/* ---------- tiny helpers ---------- */
+function byId(id){ return document.getElementById(id); }
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function lerp(a,b,t){ return a+(b-a)*t; }
+function smootherstep(t){ return t*t*t*(t*(t*6-15)+10); }        // eased, never linear
+function gauss(){ var u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(6.2831853*v); }
+function wait(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+
+/* ---------- environment flags ---------- */
+var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var FINE    = window.matchMedia('(pointer: fine)').matches;
+var SMALL   = Math.min(innerWidth, innerHeight) < 768 || !FINE;   // touch / small → fewer particles
+var TOUCH   = !FINE || window.matchMedia('(hover: none)').matches; // no hover capability → touch behavior set
+var HOVER_SEL = 'a, button, .row-skill, .row-work, .num';
+
+/* ---------- global state ---------- */
+var lenis = null, cursorTick = null;
+var BOUND = [0,.13,.37,.6,.89,1];       // section boundaries in scroll-space (measured live)
+var SECS = null, curSection = -1;
+var INTRO = { v: (REDUCED || !window.gsap) ? 1 : 0 };  // seed-cloud → hero blend
+var mouse = { x: 0, y: 0 };
+var menuOpen = false;                    // touch menu overlay open → covers canvas, pause rendering
+var lastActive = 0;                      // touch battery: last user interaction (scroll/touch) timestamp
+
+/* ============================================================
+   DOM wiring from CONFIG
+   ============================================================ */
+(function applyConfig(){
+  var parts = CONFIG.name.trim().split(/\s+/);
+  byId('heroName').innerHTML = parts.map(function(p){
+    return '<span class="lm"><span class="li">'+p.toUpperCase()+'</span></span>';
+  }).join('');
+  byId('loaderName').textContent = CONFIG.name;
+  byId('navName').textContent = CONFIG.name;
+  byId('heroTag').textContent = CONFIG.tagline;
+  byId('linkEmail').textContent = CONFIG.email;
+  byId('linkEmail').href = 'mailto:'+CONFIG.email;
+  byId('cta').href = 'mailto:'+CONFIG.email+'?subject='+encodeURIComponent('Project — '+CONFIG.name);
+  byId('linkGithub').href = CONFIG.github;
+  byId('linkLinkedin').href = CONFIG.linkedin;
+  byId('year').textContent = String(new Date().getFullYear());
+  document.documentElement.style.setProperty('--accent', CONFIG.accent);
+})();
+
+/* ---------- hero name: per-letter bounce on hover (fine pointers only) ---------- */
+(function heroLetterBounce(){
+  if (window.matchMedia('(hover: none)').matches || REDUCED) return;  // touch / reduced motion: name stays static
+  var name = byId('heroName');
+  // split the .li lines into per-letter .ch spans; the intro reveal still animates .li as a whole
+  name.querySelectorAll('.li').forEach(function(li){
+    li.innerHTML = li.textContent.split('').map(function(c){
+      return '<span class="ch">' + c + '</span>';
+    }).join('');
+  });
+  var busy = new WeakSet();                     // per-letter busy flag: no re-trigger mid-animation
+  document.addEventListener('mouseover', function(e){
+    var ch = e.target && e.target.closest ? e.target.closest('.ch') : null;
+    if (!ch || !name.contains(ch) || busy.has(ch)) return;
+    busy.add(ch);
+    var free = function(){ busy.delete(ch); };
+    if (window.gsap){
+      gsap.timeline({ onComplete: free })       // pop up 20% of letter height fast, settle with elastic overshoot
+        .to(ch, { yPercent: -20, duration: .15, ease: 'power2.out' })
+        .to(ch, { yPercent: 0, duration: .9, ease: 'elastic.out(1, 0.4)' });
+    } else {
+      // WAAPI fallback (CDN-fail path): same shape, overshoot approximated in keyframes
+      var a = ch.animate([
+        { transform: 'translateY(0)' },
+        { transform: 'translateY(-20%)', offset: .14 },
+        { transform: 'translateY(5%)',    offset: .35 },
+        { transform: 'translateY(-1.8%)', offset: .55 },
+        { transform: 'translateY(.6%)',   offset: .75 },
+        { transform: 'translateY(0)' }
+      ], { duration: 1050, easing: 'linear' });
+      a.onfinish = free; a.oncancel = free;
+    }
+  });
+  // no GSAP → no reveal timeline runs, so free the masks immediately (startIntro's .set covers the GSAP path)
+  if (!window.gsap) name.querySelectorAll('.lm').forEach(function(m){ m.style.overflow = 'visible'; });
+})();
+
+/* ---------- smooth anchors (Lenis if present) ---------- */
+(function initNav(){
+  document.querySelectorAll('[data-scroll]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var t = document.querySelector(a.getAttribute('href'));
+      if (!t) return;
+      e.preventDefault();
+      if (lenis) lenis.scrollTo(t, { duration: 1.5 });
+      else t.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' });
+    });
+  });
+})();
+
+/* ---------- touch: menu overlay — open/close on tap, scroll-locked, closes before scrolling ---------- */
+(function initMenu(){
+  if (!TOUCH) return;                       // desktop never binds — button stays display:none ≥641px
+  var btn = byId('menuBtn'), ov = byId('menuOverlay');
+  if (!btn || !ov) return;
+  function setOpen(v){
+    menuOpen = v;                            // tick() pauses GL while the overlay covers the canvas
+    ov.classList.toggle('open', v);
+    btn.textContent = v ? 'Close' : 'Menu';
+    btn.setAttribute('aria-expanded', v ? 'true' : 'false');
+    document.documentElement.style.overflow = v ? 'hidden' : '';   // lock body scroll while open
+    document.body.style.overflow = v ? 'hidden' : '';
+    if (v) lastActive = time;               // treat opening as activity
+  }
+  btn.addEventListener('click', function(){ setOpen(!ov.classList.contains('open')); });
+  // capture phase: closes (and restores scroll) BEFORE initNav's bubble handler scrolls to the target
+  ov.addEventListener('click', function(e){
+    if (e.target.closest('a')) setOpen(false);
+  }, true);
+  addEventListener('keydown', function(e){ if (e.key === 'Escape' && menuOpen) setOpen(false); });
+})();
+
+/* ---------- touch: work rows collapse into tappable accordions ----------
+   Desktop is untouched: no .row-touch markup, no chevron, detail always visible. */
+(function initWorkTouch(){
+  if (!TOUCH) return;
+  var rows = document.querySelectorAll('.row-work');
+  var openRow = null;
+  rows.forEach(function(row){
+    var box = row.querySelector('div');
+    var ps = box ? box.querySelectorAll('p') : [];
+    if (ps.length > 1) ps[ps.length-1].classList.add('row-more');   // detail paragraph
+    var tags = box ? box.querySelector('.tags') : null;
+    if (tags) tags.classList.add('row-more');                       // stack tag
+    var chev = document.createElement('span');
+    chev.className = 'row-chev';
+    chev.setAttribute('aria-hidden', 'true');
+    chev.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg>';
+    if (box) box.insertBefore(chev, box.firstChild);
+    row.classList.add('row-touch');
+    row.setAttribute('aria-expanded', 'false');
+    row.setAttribute('tabindex', '0');
+    function setOpen(v){
+      if (v && openRow && openRow !== row) openRow._setOpen(false);   // only one row open at a time
+      openRow = v ? row : null;
+      row.classList.toggle('open', v);
+      row.setAttribute('aria-expanded', v ? 'true' : 'false');
+    }
+    row._setOpen = setOpen;
+    row.addEventListener('click', function(){ setOpen(!row.classList.contains('open')); });       // first tap toggles
+    row.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); setOpen(!row.classList.contains('open')); }
+    });
+  });
+})();
+
+/* ---------- touch battery: any interaction keeps the scene alive ---------- */
+if (TOUCH){
+  ['scroll','touchstart','touchmove','pointerdown','wheel','keydown'].forEach(function(ev){
+    addEventListener(ev, function(){ lastActive = time; }, { passive:true });
+  });
+}
+
+/* ---------- measure where each section begins in progress-space ---------- */
+function measureBoundaries(){
+  var max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+  BOUND = SECS.map(function(s){ return clamp((s.offsetTop - innerHeight*0.55)/max, 0, 1); });
+  BOUND[0] = 0;
+  for (var i=1;i<BOUND.length;i++) if (BOUND[i] <= BOUND[i-1]) BOUND[i] = BOUND[i-1]+0.001;
+  if (glOK) buildCurves();
+}
+function getProgress(){
+  if (lenis && lenis.limit > 0) return clamp(lenis.scroll/lenis.limit, 0, 1);
+  var doc = document.documentElement;
+  var max = doc.scrollHeight - innerHeight;
+  return max > 0 ? clamp((window.scrollY||0)/max, 0, 1) : 0;
+}
+
+/* ============================================================
+   THE SCENE — one BufferGeometry, five precomputed formations.
+   Scroll drives everything: morph weights, camera, life params.
+   ============================================================ */
+var glOK = false, renderer, scene, camera, points, geo, uniforms;
+var N = TOUCH ? 4500 : (SMALL ? 8000 : 18000);   // particle budget: 4.5k on touch (battery), desktop untouched
+var DPR_CAP = TOUCH ? 1.5 : 2;                   // devicePixelRatio cap: 1.5 on touch GPUs, 2 on desktop
+var NF = 5;                               // formation count
+var FORMS = [];                           // Float32Array(N*3) targets
+var START, POS, STAG, AMP, FRQ, PH, HOT;  // live/seed/animation arrays
+var camCurve, lookCurve, KP = [0];
+var glDirty = true, lastP = -1, hotActive = false;
+
+/* formation "life": slow yaw / roll (radians per second) + breathing amplitude.
+   Terrain stays crisp (tiny wobble); rings precess; the sphere drifts. */
+var MODF = [
+  { yaw:.05,  roll:0,   breath:.035 },   // 0 nebula sphere
+  { yaw:.008, roll:0,   breath:.012 },   // 1 neural graph
+  { yaw:.11,  roll:0,   breath:.02  },   // 2 orbital rings
+  { yaw:0,    roll:0,   breath:.008 },   // 3 wireframe terrain
+  { yaw:0,    roll:.12, breath:.02  }    // 4 portal ring
+];
+var AMPF = [1.15,.75,.95,.3,.65];        // per-formation wobble scale
+
+function rndDir(out, i3){                // uniform random direction
+  var x,y,z,l;
+  do{ x=Math.random()*2-1; y=Math.random()*2-1; z=Math.random()*2-1; l=x*x+y*y+z*z; }
+  while(l>1 || l<1e-6);
+  l = 1/Math.sqrt(l);
+  out[i3]=x*l; out[i3+1]=y*l; out[i3+2]=z*l;
+}
+function alloc(){ return new Float32Array(N*3); }
+
+/* --- formation 0: breathing nebula (fuzzy shell + inner haze) --- */
+(function(){
+  var a = alloc(); FORMS[0] = a;
+  for (var i=0;i<N;i++){ var i3=i*3;
+    rndDir(a, i3);
+    var r = Math.random()<0.2
+      ? 6.5*Math.cbrt(Math.random())                       // inner haze
+      : 12.6*(0.78 + 0.5*Math.pow(Math.random(),0.72));    // fuzzy shell
+    a[i3]*=r; a[i3+1]*=r; a[i3+2]*=r;
+  }
+})();
+
+/* --- formation 1: neural graph (nodes, edges, dust) --- */
+(function(){
+  var a = alloc(); FORMS[1] = a;
+  var NC = Math.max(38, Math.round(N/240)), nodes = [], j,q,t;
+  for (j=0;j<NC;j++) nodes.push([gauss()*10, gauss()*5.5, -34+60*Math.random()]);
+  var edges = [], seen = {};
+  for (j=0;j<NC;j++){                       // connect each node to its 3 nearest
+    var d = [];
+    for (q=0;q<NC;q++){ if(q===j) continue;
+      var dx=nodes[j][0]-nodes[q][0], dy=nodes[j][1]-nodes[q][1], dz=nodes[j][2]-nodes[q][2];
+      d.push([dx*dx+dy*dy+dz*dz, q]);
+    }
+    d.sort(function(x,y){ return x[0]-y[0]; });
+    for (t=0;t<3 && t<d.length;t++){
+      q = d[t][1];
+      var key = j<q ? j*1000+q : q*1000+j;
+      if(!seen[key]){ seen[key]=1; edges.push([j,q]); }
+    }
+  }
+  var NE = edges.length;
+  for (var i=0;i<N;i++){ var i3=i*3, r=Math.random();
+    if (r<0.62 && NE){                       // streams along synapses
+      var ed = edges[i%NE], A = nodes[ed[0]], B = nodes[ed[1]], tt = Math.random();
+      a[i3]  = A[0]+(B[0]-A[0])*tt + gauss()*0.38;
+      a[i3+1]= A[1]+(B[1]-A[1])*tt + gauss()*0.38;
+      a[i3+2]= A[2]+(B[2]-A[2])*tt + gauss()*0.38;
+    } else if (r<0.9){                       // dense somas at nodes
+      var nd = nodes[i%NC];
+      a[i3]=nd[0]+gauss()*0.95; a[i3+1]=nd[1]+gauss()*0.95; a[i3+2]=nd[2]+gauss()*0.95;
+    } else {                                  // ambient dust
+      a[i3]=gauss()*12; a[i3+1]=gauss()*7; a[i3+2]=-36+62*Math.random();
+    }
+  }
+})();
+
+/* --- formation 2: three tilted orbital rings + nucleus --- */
+(function(){
+  var a = alloc(); FORMS[2] = a;
+  var rings = [
+    { R:9,    tx:0.45,  ty:0.15,  th:0.5 },
+    { R:14.5, tx:-0.32, ty:0.72,  th:0.7 },
+    { R:20,   tx:0.18,  ty:-0.55, th:0.9 }
+  ];
+  var wsum = rings[0].R + rings[1].R + rings[2].R;
+  for (var i=0;i<N;i++){ var i3=i*3;
+    if (Math.random()<0.06){ rndDir(a,i3); var nr=1.6*Math.cbrt(Math.random());
+      a[i3]*=nr; a[i3+1]*=nr; a[i3+2]*=nr; continue; }
+    var pick = Math.random()*wsum, ri=0;
+    while (pick > rings[ri].R){ pick -= rings[ri].R; ri++; }
+    var rg = rings[ri], ang = Math.random()*6.2831853;
+    var R = rg.R + gauss()*rg.th*0.6;
+    var x = Math.cos(ang)*R, y = gauss()*rg.th*0.5, z = Math.sin(ang)*R;
+    var y1 = y*Math.cos(rg.tx)-z*Math.sin(rg.tx);
+    var z1 = y*Math.sin(rg.tx)+z*Math.cos(rg.tx);
+    a[i3]   = x*Math.cos(rg.ty)+z1*Math.sin(rg.ty);
+    a[i3+1] = y1;
+    a[i3+2] = -x*Math.sin(rg.ty)+z1*Math.cos(rg.ty);
+  }
+})();
+
+/* --- formation 3: wireframe terrain (even grid → contour rows) --- */
+(function(){
+  var a = alloc(); FORMS[3] = a;
+  var cols = Math.max(2, Math.round(Math.sqrt(N*1.32)));
+  var rows = Math.max(2, Math.ceil(N/cols));
+  for (var i=0;i<N;i++){ var i3=i*3;
+    var c = i%cols, r = (i/cols)|0;
+    var x = -34 + 68*(c/(cols-1)) + (Math.random()-0.5)*0.16;
+    var z = -30 + 70*(r/(rows-1)) + (Math.random()-0.5)*0.16;
+    var fx = Math.min(1,(34-Math.abs(x))/9);      // soft edge falloff
+    var fz = Math.min(1,(z+34)/10);
+    var y = 2.7*Math.sin(x*0.16)*Math.cos(z*0.12)
+          + 1.7*Math.sin(x*0.42+z*0.35)
+          + 0.9*Math.sin(z*0.6+x*0.23)
+          + 2.1*Math.exp(-x*x/95);
+    a[i3]=x; a[i3+1]=y*fx*fz-2; a[i3+2]=z;
+  }
+})();
+
+/* --- formation 4: portal torus + shimmering disc (tinted embers) --- */
+var TINT = new Float32Array(N);          // baked accent tint (portal embers)
+(function(){
+  var a = alloc(); FORMS[4] = a;
+  for (var i=0;i<N;i++){ var i3=i*3;
+    if (Math.random()<0.13){
+      var rad = Math.sqrt(Math.random())*7.6, ang = Math.random()*6.2831853;
+      a[i3]=Math.cos(ang)*rad; a[i3+1]=Math.sin(ang)*rad; a[i3+2]=gauss()*0.8;
+      TINT[i]=1;                                    // disc particles carry the accent
+    } else {
+      var th = Math.random()*6.2831853, ph = Math.random()*6.2831853;
+      var rr = 0.6 + Math.abs(gauss())*0.55;
+      var R  = 10.5 + rr*Math.cos(ph);
+      a[i3]=Math.cos(th)*R; a[i3+1]=Math.sin(th)*R; a[i3+2]=rr*Math.sin(ph)*1.7;
+    }
+  }
+})();
+
+/* ---------- shared per-particle arrays ---------- */
+(function(){
+  // a few embers scattered everywhere else keeps accent presence subtle
+  for (var i=0;i<N;i++) if (Math.random()<0.02) TINT[i]=1;
+})();
+START = alloc();                          // seed cloud for the preloader→hero intro
+(function(){
+  for (var i=0;i<N;i++){ var i3=i*3;
+    rndDir(START, i3);
+    var r = 24 + 62*Math.pow(Math.random(),1.4);
+    START[i3]*=r; START[i3+1]*=r; START[i3+2]*=r;
+  }
+})();
+POS  = new Float32Array(START);           // live positions (the single buffer)
+STAG = new Float32Array(N);               // per-particle morph stagger
+AMP  = new Float32Array(N);               // wobble amplitude
+FRQ  = new Float32Array(N);               // wobble frequency
+PH   = new Float32Array(N*3);             // wobble phase (x/y/z)
+HOT  = new Float32Array(N);               // cursor-proximity accent (hero)
+for (var i=0;i<N;i++){
+  STAG[i]=Math.random();
+  AMP[i]=0.5+Math.random()*0.9;
+  FRQ[i]=0.4+Math.random()*1.1;
+  PH[i*3]=Math.random()*6.2831853; PH[i*3+1]=Math.random()*6.2831853; PH[i*3+2]=Math.random()*6.2831853;
+}
+
+/* ---------- shaders: soft additive points, ink + one accent ---------- */
+var VERT = [
+  'attribute float aSize;',
+  'attribute float aCluster;',
+  'attribute float aTint;',
+  'attribute float aHot;',
+  'uniform float uTime;',
+  'uniform float uPR;',
+  'uniform float uSize;',
+  'uniform float uActiveCluster;',
+  'varying float vMix;',
+  'varying float vA;',
+  'void main(){',
+  '  float act = 0.0;',
+  '  if (uActiveCluster > -0.5 && abs(aCluster - uActiveCluster) < 0.5){',
+  '    act = 0.62 + 0.38 * sin(uTime * 7.0);',      // hover pulse in skills
+  '  }',
+  '  vMix = clamp(max(max(act, aHot), aTint * 0.6), 0.0, 1.0);',
+  '  vA = aSize;',
+  '  vec4 mv = modelViewMatrix * vec4(position, 1.0);',
+  '  float ps = aSize * uSize * uPR * (140.0 / max(1.0, -mv.z)) * (1.0 + act * 0.9);',
+  '  gl_PointSize = clamp(ps, 1.0, 22.0);',
+  '  gl_Position = projectionMatrix * mv;',
+  '}'
+].join('\n');
+var FRAG = [
+  'precision mediump float;',
+  'uniform vec3 uInk;',
+  'uniform vec3 uAccent;',
+  'uniform float uOpacity;',
+  'varying float vMix;',
+  'varying float vA;',
+  'void main(){',
+  '  vec2 c = gl_PointCoord - 0.5;',
+  '  float d = length(c) * 2.0;',
+  '  float disc = smoothstep(1.0, 0.28, d);',
+  '  float core = smoothstep(0.42, 0.0, d);',
+  '  float alpha = (disc * 0.45 + core * 0.55) * uOpacity * (0.22 + 0.3 * vA);',
+  '  vec3 col = mix(uInk, uAccent, vMix);',
+  '  gl_FragColor = vec4(col, alpha);',
+  '}'
+].join('\n');
+
+/* ---------- camera path: 7 knots, Catmull-Rom, scroll-parameterized ---------- */
+function buildCurves(){
+  var knots = [
+    { p:0,                                   pos:[0,0,36],  look:[0,0,0]    },  // hero: sphere at origin
+    { p:BOUND[1],                            pos:[0,1,23],  look:[0,0,-6]   },  // enter the graph
+    { p:BOUND[1]+(BOUND[2]-BOUND[1])*0.5,    pos:[0,0,2],   look:[0,0,-30]  },  // mid-about: inside it
+    { p:BOUND[2],                            pos:[0,11,33], look:[0,0,0]    },  // rings, 3/4 view
+    { p:BOUND[3],                            pos:[0,16,50], look:[0,-2,4]   },  // pulled back over terrain
+    { p:BOUND[4],                            pos:[0,0,27],  look:[0,0,0]    },  // facing the portal
+    { p:1,                                   pos:[0,0,21],  look:[0,0,0]    }   // final push-in
+  ];
+  KP = knots.map(function(k){ return k.p; });
+  camCurve  = new THREE.CatmullRomCurve3(knots.map(function(k){ return new THREE.Vector3(k.pos[0],k.pos[1],k.pos[2]); }), false, 'centripetal', 0.5);
+  lookCurve = new THREE.CatmullRomCurve3(knots.map(function(k){ return new THREE.Vector3(k.look[0],k.look[1],k.look[2]); }), false, 'centripetal', 0.5);
+}
+
+/* ---------- mobile composition: shrink formations to fit narrow viewports ---------- */
+/* Desktop (fine pointer) always returns 1 → scene untouched. On touch, the hero camera sits at
+   z=36; the sphere shell reaches r≈16.5, which is wider than a 390px viewport — scale the whole
+   point cloud so sphere/graph/rings/terrain/portal all stay composed (recomputed on resize/rotation). */
+function fitScale(){
+  if (!TOUCH) return 1;
+  var fov = SMALL ? 62 : 50;
+  var hw = 36 * Math.tan(fov*Math.PI/360) * (innerWidth/Math.max(1, innerHeight));  // half-width at z=36
+  return clamp(hw/16.5, .55, 1);
+}
+
+/* ---------- WebGL boot (guarded; typographic fallback if it fails) ---------- */
+function initGL(){
+  var canvas = byId('gl');
+  function fail(){ canvas.style.display='none'; document.body.classList.add('no-webgl'); }
+  if (!window.THREE){ fail(); return; }
+  try{
+    renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:false, alpha:false, powerPreference:'high-performance' });
+    if (!renderer.getContext()) throw new Error('no webgl');
+  }catch(err){ fail(); return; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1, DPR_CAP));   // DPR capped (1.5 on touch, 2 on desktop)
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setClearColor(new THREE.Color(CONFIG.bg), 1);
+  scene  = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(SMALL?62:50, innerWidth/innerHeight, 0.1, 400);
+  camera.position.set(0,0,36);
+
+  geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(POS, 3));
+  var ASZ = new Float32Array(N), ACL = new Float32Array(N);
+  for (var i=0;i<N;i++){ ASZ[i]=0.55+Math.random()*0.95; ACL[i]=i%6; }
+  geo.setAttribute('aSize',    new THREE.BufferAttribute(ASZ, 1));
+  geo.setAttribute('aCluster', new THREE.BufferAttribute(ACL, 1));
+  geo.setAttribute('aTint',    new THREE.BufferAttribute(TINT, 1));
+  geo.setAttribute('aHot',     new THREE.BufferAttribute(HOT, 1));
+
+  uniforms = {
+    uTime:{ value:0 }, uPR:{ value:Math.min(devicePixelRatio||1, DPR_CAP) }, uSize:{ value:0.9 },
+    uActiveCluster:{ value:-1 }, uOpacity:{ value:0.9 },
+    uInk:{ value:new THREE.Color(CONFIG.ink) }, uAccent:{ value:new THREE.Color(CONFIG.accent) }
+  };
+  var mat = new THREE.ShaderMaterial({
+    uniforms:uniforms, vertexShader:VERT, fragmentShader:FRAG,
+    transparent:true, depthWrite:false, depthTest:false, blending:THREE.AdditiveBlending
+  });
+  points = new THREE.Points(geo, mat);
+  points.frustumCulled = false;           // positions morph every frame
+  points.scale.setScalar(fitScale());      // touch: recentre/zoom formations for narrow screens (1 on desktop)
+  scene.add(points);
+  buildCurves();
+  updateCamera(0, 0);
+  glOK = true;
+}
+
+/* ---------- cursor → world point (hero attraction) ---------- */
+var MW = new THREE.Vector3(), _v = new THREE.Vector3();
+function mouseWorld(){
+  _v.set(mouse.x, mouse.y, 0.5).unproject(camera);
+  _v.sub(camera.position).normalize();
+  MW.copy(camera.position).addScaledVector(_v, 34);
+}
+
+/* ---------- the morph: staggered blend between two baked formations ---------- */
+function updateParticles(p, time){
+  var k = 0;
+  while (k < NF-1 && p >= BOUND[k+1]) k++;
+  var segEnd = (k < NF-1) ? BOUND[k+1] : 1;
+  var span = segEnd - BOUND[k];
+  var m = (k === NF-1) ? 0 : (span>0 ? clamp((p-BOUND[k])/(span*0.5), 0, 1) : 1);
+  var e = REDUCED ? 0 : smootherstep(m);              // morph lives in the section's first half
+
+  var fa = FORMS[k];
+  var fb = (k < NF-1 && !REDUCED) ? FORMS[k+1] : null;
+  var mA = MODF[k], mB = MODF[Math.min(k+1, NF-1)];
+  var yaw    = REDUCED ? 0 : lerp(mA.yaw,   mB.yaw,   e) * time;
+  var roll   = REDUCED ? 0 : lerp(mA.roll,  mB.roll,  e) * time;
+  var breath = REDUCED ? 1 : 1 + lerp(mA.breath, mB.breath, e) * Math.sin(time*0.5);
+  var ampS   = lerp(AMPF[k], AMPF[Math.min(k+1, NF-1)], e);
+  var trans  = Math.sin(Math.PI * e);                 // turbulence peaks mid-morph
+  var cy = Math.cos(yaw), sy = Math.sin(yaw);
+  var cr = Math.cos(roll), sr = Math.sin(roll);
+  var w0 = (k === 0 && !REDUCED && FINE) ? (1 - e) : 0;  // hero cursor attraction — fine pointers only
+  if (w0 > 0.001) mouseWorld();
+
+  for (var i=0;i<N;i++){
+    var i3 = i*3;
+    // staggered per-particle morph progress
+    var ti = e*1.35 - STAG[i]*0.35;
+    ti = ti<0 ? 0 : (ti>1 ? 1 : ti);
+    var t2 = ti*ti*(3-2*ti);
+    var x = fa[i3], y = fa[i3+1], z = fa[i3+2];
+    if (fb){
+      x += (fb[i3]-x)*t2; y += (fb[i3+1]-y)*t2; z += (fb[i3+2]-z)*t2;
+    }
+    // organic wobble (light, per-particle)
+    if (!REDUCED){
+      var w = AMP[i]*ampS*(0.55 + 0.9*trans)*0.42;
+      x += Math.sin(time*FRQ[i]      + PH[i3])   * w;
+      y += Math.sin(time*(FRQ[i]+.33)+ PH[i3+1]) * w;
+      z += Math.cos(time*FRQ[i]*.71  + PH[i3+2]) * w;
+    }
+    // preloader → hero: blend in from the seed cloud
+    if (INTRO.v < 1){
+      x = START[i3]  +(x-START[i3])  *INTRO.v;
+      y = START[i3+1]+(y-START[i3+1])*INTRO.v;
+      z = START[i3+2]+(z-START[i3+2])*INTRO.v;
+    }
+    // global life: breath scale, slow yaw, roll
+    x*=breath; y*=breath; z*=breath;
+    var X = x*cy - z*sy, Z = x*sy + z*cy, Y = y;
+    var X2 = X*cr - Y*sr, Y2 = X*sr + Y*cr;
+    // hero: gentle attraction toward the cursor
+    if (w0 > 0.001){
+      var dx = MW.x-X2, dy = MW.y-Y2, dz = MW.z-Z;
+      var d2 = dx*dx+dy*dy+dz*dz;
+      var g = Math.exp(-d2*0.011)*w0;
+      var d = Math.sqrt(d2)+1e-4;
+      var pull = g*3.4;
+      X2 += dx/d*pull; Y2 += dy/d*pull; Z += dz/d*pull;
+      HOT[i] = g*1.5 > 1 ? 1 : g*1.5;
+    } else if (hotActive){
+      HOT[i] = 0;
+    }
+    POS[i3]=X2; POS[i3+1]=Y2; POS[i3+2]=Z;
+  }
+  geo.attributes.position.needsUpdate = true;
+  if (w0 > 0.001){ hotActive = true; geo.attributes.aHot.needsUpdate = true; }
+  else if (hotActive){ hotActive = false; geo.attributes.aHot.needsUpdate = true; }
+  uniforms.uTime.value = time;
+}
+
+/* ---------- camera: curve position + parallax + idle drift ---------- */
+var camPos = new THREE.Vector3(), camLook = new THREE.Vector3();
+var parX = 0, parY = 0;
+function updateCamera(p, time){
+  var n = KP.length-1, i = 0;
+  while (i < n-1 && p > KP[i+1]) i++;
+  var l = KP[i+1]-KP[i];
+  var f = l > 0 ? clamp((p-KP[i])/l, 0, 1) : 0;
+  var ct = (i+f)/n;
+  camCurve.getPoint(ct, camPos);
+  lookCurve.getPoint(ct, camLook);
+  if (INTRO.v < 1) camPos.z += (1-INTRO.v)*10;       // intro dolly
+  if (!REDUCED){
+    parX += (mouse.x*2.6 - parX)*0.04;               // mouse parallax
+    parY += (mouse.y*1.8 - parY)*0.04;
+    camPos.x += parX + Math.sin(time*0.21)*0.55;     // idle drift
+    camPos.y += parY + Math.cos(time*0.16)*0.4;
+  }
+  camera.position.copy(camPos);
+  camera.lookAt(camLook);
+}
+
+/* ---------- skills hover → pulse the matching particle cluster (fine pointers only) ---------- */
+(function initSkills(){
+  if (!FINE) return;                       // touch: no hover — no sticky cluster pulse
+  document.querySelectorAll('.row-skill').forEach(function(row){
+    var c = parseFloat(row.dataset.cluster)||0;
+    row.addEventListener('mouseenter', function(){ if (uniforms) uniforms.uActiveCluster.value = c; });
+    row.addEventListener('mouseleave', function(){ if (uniforms) uniforms.uActiveCluster.value = -1; });
+  });
+})();
+
+/* ---------- custom cursor: dot + trailing ring ---------- */
+(function initCursor(){
+  if (!FINE || REDUCED) return;
+  document.body.classList.add('has-cursor');
+  var dot = byId('cDot'), ring = byId('cRing');
+  var x = innerWidth/2, y = innerHeight/2, rx = x, ry = y, sc = 1, tSc = 1, shown = false;
+  addEventListener('mousemove', function(e){
+    x = e.clientX; y = e.clientY;
+    mouse.x = (e.clientX/innerWidth)*2-1;               // NDC for parallax
+    mouse.y = -(e.clientY/innerHeight)*2+1;
+    if (!shown){ shown = true; rx = x; ry = y; dot.style.opacity = 1; ring.style.opacity = 1; }
+  }, { passive:true });
+  document.addEventListener('mouseleave', function(){
+    shown = false; dot.style.opacity = 0; ring.style.opacity = 0;
+  });
+  document.addEventListener('mouseover', function(e){
+    if (e.target.closest(HOVER_SEL)){ tSc = 1.65; ring.classList.add('hot'); }
+  });
+  document.addEventListener('mouseout', function(e){
+    if (e.target.closest(HOVER_SEL)){ tSc = 1; ring.classList.remove('hot'); }
+  });
+  addEventListener('mousedown', function(){ dot.classList.add('down'); });
+  addEventListener('mouseup',   function(){ dot.classList.remove('down'); });
+  cursorTick = function(){
+    rx += (x-rx)*0.16; ry += (y-ry)*0.16;
+    sc += (tSc-sc)*0.18;
+    dot.style.transform  = 'translate3d('+x+'px,'+y+'px,0)';
+    ring.style.transform = 'translate3d('+rx+'px,'+ry+'px,0) scale('+sc+')';
+  };
+})();
+
+/* ---------- magnetic hover on buttons/links ---------- */
+(function initMagnetic(){
+  if (!FINE || REDUCED || !window.gsap) return;
+  document.querySelectorAll('[data-magnetic]').forEach(function(el){
+    var str = parseFloat(el.dataset.magnetic) || 0.35;
+    el.addEventListener('mousemove', function(e){
+      var r = el.getBoundingClientRect();
+      gsap.to(el, { x:(e.clientX-r.left-r.width/2)*str, y:(e.clientY-r.top-r.height/2)*str,
+                    duration:.5, ease:'power3.out' });
+    });
+    el.addEventListener('mouseleave', function(){
+      gsap.to(el, { x:0, y:0, duration:.7, ease:'power3.inOut' });
+    });
+  });
+})();
+
+/* ---------- line splitting: wrap words, group by measured row ---------- */
+/* idempotent — always rebuilds from the stored raw text, so resize re-flows */
+function splitLines(el){
+  var raw = el.dataset.raw || (el.dataset.raw = el.textContent.trim().replace(/\s+/g,' '));
+  el.innerHTML = raw.split(' ').map(function(w){ return '<span class="w">'+w+'</span>'; }).join(' ');
+  var spans = el.querySelectorAll('.w'), groups = [], top = null;
+  spans.forEach(function(s){
+    if (s.offsetTop !== top){ top = s.offsetTop; groups.push([]); }
+    groups[groups.length-1].push(s.textContent);
+  });
+  el.innerHTML = groups.map(function(g){
+    return '<span class="lm"><span class="li">'+g.join(' ')+'</span></span>';
+  }).join('');
+  el.dataset.split = '1';
+}
+
+/* ---------- scroll reveals: masked lines + fades (skipped if reduced) ---------- */
+function initReveals(){
+  if (!window.gsap || !window.ScrollTrigger || REDUCED) return;
+  gsap.registerPlugin(ScrollTrigger);
+  document.querySelectorAll('[data-split]').forEach(splitLines);
+  gsap.set('.sec:not(#hero) .lm .li', { yPercent: 115 });
+  gsap.set('.sec:not(#hero) [data-fade]', { opacity: 0, y: 26 });
+
+  SECS.forEach(function(sec){
+    if (sec.id === 'hero') return;                     // hero is the preloader handoff
+    var tl = gsap.timeline({
+      scrollTrigger: { trigger: sec, start: 'top 78%', toggleActions: 'play none none reverse' }
+    });
+    tl.to(sec.querySelectorAll('.li'), { yPercent:0, duration:1.05, ease:'power4.out', stagger:.09 }, 0)
+      .to(sec.querySelectorAll('[data-fade]'), { opacity:1, y:0, duration:.9, ease:'power3.out', stagger:.08 }, 0.22);
+  });
+
+  // rows get their own triggers so tall lists stagger naturally
+  document.querySelectorAll('.row').forEach(function(row){
+    gsap.fromTo(row, { opacity:0, y:34 },
+      { opacity:1, y:0, duration:.9, ease:'power3.out',
+        scrollTrigger:{ trigger:row, start:'top 92%', toggleActions:'play none none reverse' } });
+  });
+
+  // about: numbers tick up once
+  document.querySelectorAll('[data-count]').forEach(function(el){
+    var end = parseFloat(el.dataset.count), pad = parseInt(el.dataset.pad,10)||0;
+    var st = { v: 0 };
+    ScrollTrigger.create({ trigger: el, start: 'top 88%', once: true, onEnter: function(){
+      gsap.to(st, { v: end, duration: 1.4, ease: 'power2.out', onUpdate: function(){
+        el.textContent = pad ? String(Math.round(st.v)).padStart(pad,'0') : String(Math.round(st.v));
+      }});
+    }});
+  });
+  ScrollTrigger.refresh();
+}
+
+/* ---------- Lenis: inertial scroll, one source of truth (desktop only — native momentum on touch) ---------- */
+(function initLenis(){
+  if (REDUCED || !window.Lenis || TOUCH) return;   // touch keeps native iOS/Android scrolling
+  lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+  lenis.on('scroll', function(){ if (window.ScrollTrigger) ScrollTrigger.update(); });
+})();
+
+/* ---------- preloader: counter + wipe, hands off into the hero ---------- */
+function startIntro(){
+  if (!window.gsap || REDUCED){ INTRO.v = 1; return; }
+  gsap.to(INTRO, { v:1, duration:2, ease:'power3.inOut' });       // cloud → nebula
+  var tl = gsap.timeline({ delay:.05 });
+  tl.fromTo('.hero-name .li', { yPercent:115 }, { yPercent:0, duration:1.15, ease:'power4.out', stagger:.12 })
+    .fromTo('.hero-label, .hero-tag, .hero-blurb', { opacity:0, y:26 },
+            { opacity:1, y:0, duration:.9, ease:'power3.out', stagger:.09 }, '-=.75')
+    .fromTo('.nav', { opacity:0, y:-14 }, { opacity:1, y:0, duration:.8, ease:'power3.out' }, '-=.8')
+    .fromTo('.scroll-cue', { opacity:0 }, { opacity:1, duration:.9 }, '-=.6')
+    .set('#heroName .lm', { overflow:'visible' }, 1.3);  // reveal done (last .li lands ≈1.27s) → letter bounces rise unclipped
+}
+(function boot(){
+  var loader = byId('loader');
+  if (REDUCED || !window.gsap){
+    if (loader) loader.remove();
+    INTRO.v = 1;
+    document.body.classList.add('is-ready');
+    return;
+  }
+  if (lenis) lenis.stop();                             // lock scroll while loading
+  var num = byId('loaderNum'), bar = byId('loaderBar'), st = { v: 0 };
+  var countDone = new Promise(function(res){
+    gsap.to(st, { v:100, duration:.9, ease:'power2.inOut', onUpdate: function(){
+      num.textContent = String(Math.round(st.v)).padStart(3,'0');
+      bar.style.transform = 'scaleX('+(st.v/100)+')';
+    }, onComplete: res });
+  });
+  var fontsReady = (document.fonts && document.fonts.ready) || Promise.resolve();
+  var splitReady = fontsReady.then(function(){ initReveals(); });
+  // total visible loading time stays ≈ 1.5s; fonts get a 2.8s grace window
+  Promise.race([ Promise.all([countDone, splitReady]), wait(2800) ]).then(function(){
+    var tl = gsap.timeline();
+    tl.to(loader, { yPercent:-100, duration:.62, ease:'expo.inOut', delay:.08 })
+      .add(function(){ document.body.classList.add('is-ready'); }, .12)
+      .add(function(){
+        startIntro();
+        if (lenis) lenis.start();
+        if (window.ScrollTrigger) ScrollTrigger.refresh();
+      }, '-=.34')
+      .add(function(){ loader.remove(); });
+  });
+})();
+
+/* ---------- HUD: progress line + section label swap ---------- */
+function setLabel(txt){
+  var el = byId('hudLabel');
+  if (!window.gsap || REDUCED){ el.textContent = txt; return; }
+  gsap.to(el, { y:8, opacity:0, duration:.18, ease:'power2.in', onComplete: function(){
+    el.textContent = txt;
+    gsap.to(el, { y:0, opacity:1, duration:.3, ease:'power2.out' });
+  }});
+}
+
+/* ---------- the frame loop (gsap ticker, or rAF fallback) ---------- */
+var hudFill = byId('hudFill'), cue = document.querySelector('.scroll-cue');
+var time = 0;
+function tick(dtMs){
+  time += (dtMs || 16.7) * 0.001;
+  var p = getProgress();
+
+  if (hudFill) hudFill.style.transform = 'scaleY('+p+')';
+  var k = 0;
+  while (k < NF-1 && p >= BOUND[k+1]) k++;
+  if (k !== curSection){ curSection = k; setLabel(SECS[k].dataset.label); }
+  if (cue && INTRO.v > 0.9) cue.style.opacity = clamp(1 - p*20, 0, 1);
+
+  if (glOK){
+    // battery on touch: no GPU work when the tab is hidden, the menu overlay covers the canvas,
+    // or the user has been idle 5s+ — any interaction (scroll/touch/key) resumes instantly.
+    var paused = document.hidden || menuOpen || (TOUCH && time - lastActive > 5);
+    if (paused){ /* skip particle math + render this frame */ }
+    else if (REDUCED && p === lastP && !glDirty){ /* static until scroll changes */ }
+    else {
+      updateParticles(p, time);
+      updateCamera(p, time);
+      renderer.render(scene, camera);     // rAF naturally pauses when the tab hides
+      glDirty = false; lastP = p;
+    }
+  }
+  if (cursorTick) cursorTick();
+}
+if (window.gsap){
+  gsap.ticker.add(function(t, dt){ tick(dt); });
+  gsap.ticker.lagSmoothing(0);
+  if (lenis) gsap.ticker.add(function(t){ lenis.raf(t*1000); });
+} else {
+  (function loop(now){ tick(16.7); requestAnimationFrame(loop); })(0);
+}
+
+/* ---------- boot + resize ---------- */
+SECS = Array.prototype.slice.call(document.querySelectorAll('.sec'));
+initGL();
+measureBoundaries();
+
+var rzT = null, lastW = innerWidth;
+addEventListener('resize', function(){
+  clearTimeout(rzT);
+  rzT = setTimeout(function(){
+    measureBoundaries();
+    if (glOK){
+      camera.aspect = innerWidth/innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+      uniforms.uPR.value = Math.min(devicePixelRatio||1, DPR_CAP);
+      points.scale.setScalar(fitScale());   // rotation/resize: keep formations composed on touch (1 on desktop)
+      glDirty = true;
+    }
+    // wide resizes: re-flow the masked lines (splitLines is idempotent)
+    if (Math.abs(innerWidth-lastW) > 120 && window.gsap && !REDUCED && window.ScrollTrigger){
+      ScrollTrigger.getAll().forEach(function(t){ t.kill(); });
+      initReveals();
+    }
+    lastW = innerWidth;
+    if (window.ScrollTrigger) ScrollTrigger.refresh();
+  }, 250);
+});
+
+})();
+</script>
+</body>
+</html>
