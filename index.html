@@ -1138,7 +1138,6 @@ function updateParticles(p, time){
 /* ---------- camera: curve position + parallax + idle drift ---------- */
 var camPos = new THREE.Vector3(), camLook = new THREE.Vector3();
 var parX = 0, parY = 0;
-var frameDt = 1/60;                     // seconds — set by tick(); drives the framerate-independent parallax chase
 function updateCamera(p, time){
   var n = KP.length-1, i = 0;
   while (i < n-1 && p > KP[i+1]) i++;
@@ -1149,9 +1148,8 @@ function updateCamera(p, time){
   lookCurve.getPoint(ct, camLook);
   if (INTRO.v < 1) camPos.z += (1-INTRO.v)*10;       // intro dolly
   if (!REDUCED){
-    var pa = 1 - Math.exp(-2.4517*frameDt);          // FIX A: framerate-independent, spike-proof (equivalent of 0.04/frame @60fps)
-    parX += (mouse.x*2.6 - parX)*pa;                 // mouse parallax
-    parY += (mouse.y*1.8 - parY)*pa;
+    parX += (mouse.x*2.6 - parX)*0.04;               // mouse parallax
+    parY += (mouse.y*1.8 - parY)*0.04;
     camPos.x += parX + Math.sin(time*0.21)*0.55;     // idle drift
     camPos.y += parY + Math.cos(time*0.16)*0.4;
   }
@@ -1334,9 +1332,7 @@ function setLabel(txt){
 var hudFill = byId('hudFill'), cue = document.querySelector('.scroll-cue');
 var time = 0;
 function tick(dtMs){
-  var dt = (dtMs || 16.7) * 0.001;
-  if (dt > 0.25) dt = 0;                 // FIX C: stall/tab-return spike → discard, don't feed time/lerps (positions are direct functions of scroll, so the frame still lands on target)
-  frameDt = dt;
+  time += (dtMs || 16.7) * 0.001;
   var p = getProgress();
 
   if (hudFill) hudFill.style.transform = 'scaleY('+p+')';
@@ -1349,10 +1345,9 @@ function tick(dtMs){
     // battery on touch: no GPU work when the tab is hidden, the menu overlay covers the canvas,
     // or the user has been idle 5s+ — any interaction (scroll/touch/key) resumes instantly.
     var paused = document.hidden || menuOpen || (TOUCH && time - lastActive > 5);
-    if (paused){ /* FIX C: battery pause also FREEZES scene time — idle/menu/hidden resume lands exactly where it left, no phase jump */ }
-    else if (REDUCED && p === lastP && !glDirty){ time += dt; /* static until scroll changes */ }
+    if (paused){ /* skip particle math + render this frame */ }
+    else if (REDUCED && p === lastP && !glDirty){ /* static until scroll changes */ }
     else {
-      time += dt;                         // FIX C: scene time advances only while actually rendering
       updateParticles(p, time);
       updateCamera(p, time);
       renderer.render(scene, camera);     // rAF naturally pauses when the tab hides
@@ -1394,7 +1389,7 @@ addEventListener('resize', function(){
     }
     lastW = innerWidth;
     if (window.ScrollTrigger) ScrollTrigger.refresh();
-  }, 150);   // FIX D: debounce — phones fire resize repeatedly while the URL bar settles mid-scroll; one deferred recompute (also skips the burst of hitches)
+  }, 250);
 });
 
 })();
